@@ -12,6 +12,9 @@ const DEFAULT_SETTINGS: Settings = {
 
 export function SettingsPage() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
+  // The api_key field is held separately and starts empty: `settings.api_key` only ever
+  // holds the MASKED value returned by the server, and must never be sent back as-is.
+  const [apiKeyInput, setApiKeyInput] = useState('')
   const [status, setStatus] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
 
@@ -29,8 +32,16 @@ export function SettingsPage() {
     setStatus(null)
     setError(null)
     try {
-      const saved = await updateSettings(settings)
+      const trimmedKey = apiKeyInput.trim()
+      const payload = {
+        api_base: settings.api_base,
+        model: settings.model,
+        ocr_engine: settings.ocr_engine,
+        ...(trimmedKey ? { api_key: trimmedKey } : {}),
+      }
+      const saved = await updateSettings(payload)
       setSettings(saved)
+      setApiKeyInput('')
       setStatus('✅ Enregistré.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Enregistrement impossible.')
@@ -48,8 +59,13 @@ export function SettingsPage() {
         <input
           id="apiKey"
           type="password"
-          value={settings.api_key}
-          onChange={(e) => update('api_key', e.target.value)}
+          value={apiKeyInput}
+          onChange={(e) => setApiKeyInput(e.target.value)}
+          placeholder={
+            settings.api_key
+              ? `Clé actuelle : ${settings.api_key} — laisse vide pour ne pas changer`
+              : 'Aucune clé enregistrée'
+          }
           className="w-full border rounded px-3 py-2 mb-4"
         />
 
