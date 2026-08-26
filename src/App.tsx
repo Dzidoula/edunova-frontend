@@ -1,9 +1,26 @@
+import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { AuthProvider } from './context/AuthContext'
+import { ProtectedRoute } from './components/ProtectedRoute'
+import { Layout } from './components/Layout'
+import { LoginPage } from './pages/LoginPage'
+
+function HomePlaceholder() {
+  return <div>Bonjour 👋</div>
+}
+
 export default function App() {
   return (
-    <div className="min-h-screen bg-slate-50">
-      <header className="bg-blue-600 text-white px-4 py-3">
-        <h1 className="text-lg font-bold">📘 EduNova</h1>
-      </header>
-    </div>
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route element={<Layout />}>
+              <Route path="/" element={<HomePlaceholder />} />
+            </Route>
+          </Route>
+        </Routes>
+      </AuthProvider>
+    </BrowserRouter>
   )
 }
