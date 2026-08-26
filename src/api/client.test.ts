@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { apiFetch, ApiError, setToken } from './client'
+import { apiFetch, ApiError, setToken, getToken } from './client'
 
 describe('apiFetch', () => {
   beforeEach(() => {
@@ -44,6 +44,32 @@ describe('apiFetch', () => {
       status: 401,
       message: 'Token invalide.',
     })
+  })
+
+  it('clears the stored token when the server responds 401', async () => {
+    setToken('expired-token')
+    ;(fetch as any).mockResolvedValue({
+      ok: false,
+      status: 401,
+      statusText: 'Unauthorized',
+      json: async () => ({ detail: 'Token invalide.' }),
+    })
+
+    await expect(apiFetch('/protected')).rejects.toBeInstanceOf(ApiError)
+    expect(getToken()).toBeNull()
+  })
+
+  it('does not clear the stored token on other error statuses', async () => {
+    setToken('still-valid-token')
+    ;(fetch as any).mockResolvedValue({
+      ok: false,
+      status: 500,
+      statusText: 'Internal Server Error',
+      json: async () => ({ detail: 'Oops.' }),
+    })
+
+    await expect(apiFetch('/protected')).rejects.toBeInstanceOf(ApiError)
+    expect(getToken()).toBe('still-valid-token')
   })
 
   it('returns undefined for a 204 response without parsing a body', async () => {

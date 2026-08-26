@@ -40,6 +40,11 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     } catch {
       // no JSON body — keep statusText
     }
+    if (response.status === 401) {
+      // The stored token is expired/invalid: drop it so ProtectedRoute redirects to /login
+      // on next render instead of leaving the user stuck on a broken authenticated page.
+      setToken(null)
+    }
     throw new ApiError(response.status, message)
   }
 
