@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { getSettings, updateSettings, Settings } from '../api/settings'
+import type { Settings } from '../api/settings'
+import { getSettings, updateSettings } from '../api/settings'
 import { ErrorBanner } from '../components/ErrorBanner'
 
 const DEFAULT_SETTINGS: Settings = {
