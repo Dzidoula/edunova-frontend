@@ -7,7 +7,7 @@ import { Settings as SettingsIcon, CheckCircle2 } from 'lucide-react'
 const DEFAULT_SETTINGS: Settings = {
   api_key: '',
   api_base: 'https://api.groq.com/openai/v1',
-  model: 'llama-3.3-70b-versatile',
+  model: 'openai/gpt-oss-120b',
   ocr_engine: 'auto',
 }
 
