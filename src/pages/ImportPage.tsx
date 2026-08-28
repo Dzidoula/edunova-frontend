@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { ScanLine } from 'lucide-react'
 import { createDocument } from '../api/documents'
 import { ErrorBanner } from '../components/ErrorBanner'
 
@@ -35,9 +36,12 @@ export function ImportPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">📷 Importer un document</h1>
+      <h1 className="flex items-center gap-2 text-2xl font-bold mb-4 text-foreground">
+        <ScanLine className="h-6 w-6 text-primary" aria-hidden="true" />
+        Importer un document
+      </h1>
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-      <form onSubmit={handleSubmit} className="bg-white border rounded p-6 max-w-xl">
+      <form onSubmit={handleSubmit} className="bg-white border border-border rounded-2xl p-6 max-w-xl">
         <label htmlFor="title" className="block text-sm font-medium mb-1">
           Titre
         </label>
@@ -45,7 +49,7 @@ export function ImportPage() {
           id="title"
           value={title}
           onChange={(e) => setTitle(e.target.value)}
-          className="w-full border rounded px-3 py-2 mb-4"
+          className="w-full border border-border rounded-lg px-3 py-2 mb-4 transition-colors duration-200 focus:border-primary"
         />
 
         <label htmlFor="subject" className="block text-sm font-medium mb-1">
@@ -55,7 +59,7 @@ export function ImportPage() {
           id="subject"
           value={subject}
           onChange={(e) => setSubject(e.target.value)}
-          className="w-full border rounded px-3 py-2 mb-4"
+          className="w-full border border-border rounded-lg px-3 py-2 mb-4 transition-colors duration-200 focus:border-primary"
         >
           {SUBJECTS.map((s) => (
             <option key={s} value={s}>
@@ -71,7 +75,7 @@ export function ImportPage() {
           id="documentType"
           value={documentType}
           onChange={(e) => setDocumentType(e.target.value)}
-          className="w-full border rounded px-3 py-2 mb-4"
+          className="w-full border border-border rounded-lg px-3 py-2 mb-4 transition-colors duration-200 focus:border-primary"
         >
           {TYPES.map((t) => (
             <option key={t.value} value={t.value}>
@@ -99,10 +103,13 @@ export function ImportPage() {
           value={text}
           onChange={(e) => setText(e.target.value)}
           rows={8}
-          className="w-full border rounded px-3 py-2 mb-4"
+          className="w-full border border-border rounded-lg px-3 py-2 mb-4 transition-colors duration-200 focus:border-primary"
         />
 
-        <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded font-semibold hover:bg-blue-700">
+        <button
+          type="submit"
+          className="bg-primary text-on-primary px-4 py-2.5 rounded-lg font-semibold transition-colors duration-200 hover:bg-primary-dark cursor-pointer"
+        >
           Importer et afficher
         </button>
       </form>

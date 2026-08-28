@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { GraduationCap } from 'lucide-react'
 import { useAuth } from '../context/AuthContext'
 import { ErrorBanner } from '../components/ErrorBanner'
 
@@ -22,21 +23,27 @@ export function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50">
-      <form onSubmit={handleSubmit} className="bg-white shadow rounded p-8 w-full max-w-sm">
-        <h1 className="text-xl font-bold mb-4">📘 EduNova</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-purple-100 px-4">
+      <form onSubmit={handleSubmit} className="bg-white shadow-xl rounded-2xl p-8 w-full max-w-sm border border-border">
+        <div className="flex items-center gap-2 mb-6 text-primary">
+          <GraduationCap className="h-8 w-8" aria-hidden="true" />
+          <h1 className="text-xl font-bold text-foreground">EduNova</h1>
+        </div>
         {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-        <label htmlFor="username" className="block text-sm font-medium mb-1">
+        <label htmlFor="username" className="block text-sm font-medium mb-1 text-foreground">
           Ton pseudo
         </label>
         <input
           id="username"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
-          className="w-full border rounded px-3 py-2 mb-4"
+          className="w-full border border-border rounded-lg px-3 py-2.5 mb-4 transition-colors duration-200 focus:border-primary"
           placeholder="ex: koffi"
         />
-        <button type="submit" className="w-full bg-blue-600 text-white rounded py-2 font-semibold hover:bg-blue-700">
+        <button
+          type="submit"
+          className="w-full bg-primary text-on-primary rounded-lg py-2.5 font-semibold transition-colors duration-200 hover:bg-primary-dark cursor-pointer"
+        >
           Entrer
         </button>
       </form>

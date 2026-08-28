@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useParams } from 'react-router-dom'
+import { PencilLine, CheckCircle2, XCircle, PartyPopper, ArrowRight } from 'lucide-react'
 import { recordResult } from '../api/progress'
 import type { ErrorAnalysis } from '../api/progress'
 import { ErrorBanner } from '../components/ErrorBanner'
@@ -11,6 +12,15 @@ const STEPS = [
   { title: 'Appliquer', prompt: () => 'Écris ta résolution.' },
   { title: 'Vérifier', prompt: () => 'Comment vérifier le résultat ?' },
 ]
+
+function ExerciseTitle({ notion }: { notion: string }) {
+  return (
+    <h1 className="flex items-center gap-2 text-2xl font-bold mb-4 text-foreground">
+      <PencilLine className="h-6 w-6 text-primary" aria-hidden="true" />
+      {notion}
+    </h1>
+  )
+}
 
 export function ExercisePage() {
   const { notion = '', subject = '' } = useParams<{ notion: string; subject: string }>()
@@ -32,13 +42,16 @@ export function ExercisePage() {
   if (analysis !== undefined) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-4">📝 {notion}</h1>
+        <ExerciseTitle notion={notion} />
         {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-        <p className="mb-4">✅ Résultat enregistré.</p>
+        <p className="flex items-center gap-2 mb-4 text-success font-medium">
+          <CheckCircle2 className="h-5 w-5" aria-hidden="true" />
+          Résultat enregistré.
+        </p>
         {analysis && (
-          <div className="bg-white border rounded p-4">
-            <p className="font-semibold">{analysis.summary}</p>
-            <p className="text-sm text-slate-600 whitespace-pre-wrap mt-2">{analysis.strategy}</p>
+          <div className="bg-white border border-border rounded-2xl p-5">
+            <p className="font-semibold text-foreground">{analysis.summary}</p>
+            <p className="text-sm text-muted-foreground whitespace-pre-wrap mt-2">{analysis.strategy}</p>
           </div>
         )}
       </div>
@@ -48,22 +61,33 @@ export function ExercisePage() {
   if (stepIndex >= STEPS.length) {
     return (
       <div>
-        <h1 className="text-2xl font-bold mb-4">📝 {notion}</h1>
+        <ExerciseTitle notion={notion} />
         {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-        <p className="font-semibold mb-4">🎉 Terminé !</p>
+        <p className="flex items-center gap-2 font-semibold mb-4 text-foreground">
+          <PartyPopper className="h-5 w-5 text-primary" aria-hidden="true" />
+          Terminé !
+        </p>
         <textarea
           value={learnerNote}
           onChange={(e) => setLearnerNote(e.target.value)}
           placeholder="Qu'est-ce qui a bloqué ? (optionnel)"
-          className="w-full border rounded px-3 py-2 mb-4"
+          className="w-full border border-border rounded-lg px-3 py-2 mb-4 transition-colors duration-200 focus:border-primary"
           rows={3}
         />
         <div className="flex gap-2">
-          <button onClick={() => mark(true)} className="bg-green-600 text-white px-4 py-2 rounded font-semibold">
-            ✓ Réussi
+          <button
+            onClick={() => mark(true)}
+            className="flex items-center gap-1.5 bg-success text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-200 hover:brightness-110 cursor-pointer"
+          >
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            Réussi
           </button>
-          <button onClick={() => mark(false)} className="bg-red-600 text-white px-4 py-2 rounded font-semibold">
-            ✗ À revoir
+          <button
+            onClick={() => mark(false)}
+            className="flex items-center gap-1.5 bg-destructive text-white px-4 py-2 rounded-lg font-semibold transition-colors duration-200 hover:brightness-110 cursor-pointer"
+          >
+            <XCircle className="h-4 w-4" aria-hidden="true" />
+            À revoir
           </button>
         </div>
       </div>
@@ -73,18 +97,19 @@ export function ExercisePage() {
   const step = STEPS[stepIndex]
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">📝 {notion}</h1>
-      <div className="bg-white border rounded p-4 mb-4">
-        <p className="font-semibold">
+      <ExerciseTitle notion={notion} />
+      <div className="bg-white border border-border rounded-2xl p-5 mb-4">
+        <p className="font-semibold text-foreground">
           Étape {stepIndex + 1}/{STEPS.length} — {step.title}
         </p>
-        <p className="mt-2">{step.prompt(notion)}</p>
+        <p className="mt-2 text-foreground">{step.prompt(notion)}</p>
       </div>
       <button
         onClick={() => setStepIndex((i) => i + 1)}
-        className="bg-blue-600 text-white px-4 py-2 rounded font-semibold"
+        className="flex items-center gap-1.5 bg-primary text-on-primary px-4 py-2 rounded-lg font-semibold transition-colors duration-200 hover:bg-primary-dark cursor-pointer"
       >
-        Étape suivante →
+        Étape suivante
+        <ArrowRight className="h-4 w-4" aria-hidden="true" />
       </button>
     </div>
   )

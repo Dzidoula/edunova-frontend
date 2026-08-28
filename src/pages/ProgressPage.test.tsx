@@ -29,7 +29,7 @@ describe('ProgressPage', () => {
     )
 
     await waitFor(() => expect(screen.getByText('Fractions')).toBeInTheDocument())
-    expect(screen.getByText('🔴 Difficulté')).toBeInTheDocument()
+    expect(screen.getByText('Difficulté')).toBeInTheDocument()
     expect(screen.getByText(/Analyse d'erreur sur les fractions/)).toBeInTheDocument()
   })
 })

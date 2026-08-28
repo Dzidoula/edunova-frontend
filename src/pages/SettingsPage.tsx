@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import type { Settings } from '../api/settings'
 import { getSettings, updateSettings } from '../api/settings'
 import { ErrorBanner } from '../components/ErrorBanner'
+import { Settings as SettingsIcon, CheckCircle2 } from 'lucide-react'
 
 const DEFAULT_SETTINGS: Settings = {
   api_key: '',
@@ -9,6 +10,9 @@ const DEFAULT_SETTINGS: Settings = {
   model: 'llama-3.3-70b-versatile',
   ocr_engine: 'auto',
 }
+
+const inputClass =
+  'w-full border border-border rounded-lg px-3 py-2 mb-4 transition-colors duration-200 focus:border-primary'
 
 export function SettingsPage() {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS)
@@ -42,7 +46,7 @@ export function SettingsPage() {
       const saved = await updateSettings(payload)
       setSettings(saved)
       setApiKeyInput('')
-      setStatus('✅ Enregistré.')
+      setStatus('Enregistré.')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Enregistrement impossible.')
     }
@@ -50,10 +54,13 @@ export function SettingsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">⚙️ Paramètres</h1>
+      <h1 className="flex items-center gap-2 text-2xl font-bold mb-4 text-foreground">
+        <SettingsIcon className="h-6 w-6 text-primary" aria-hidden="true" />
+        Paramètres
+      </h1>
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-      <div className="bg-white border rounded p-6 max-w-xl">
-        <label htmlFor="apiKey" className="block text-sm font-medium mb-1">
+      <div className="bg-white border border-border rounded-2xl p-6 max-w-xl">
+        <label htmlFor="apiKey" className="block text-sm font-medium mb-1 text-foreground">
           Clé API (Groq/OpenAI)
         </label>
         <input
@@ -66,45 +73,53 @@ export function SettingsPage() {
               ? `Clé actuelle : ${settings.api_key} — laisse vide pour ne pas changer`
               : 'Aucune clé enregistrée'
           }
-          className="w-full border rounded px-3 py-2 mb-4"
+          className={inputClass}
         />
 
-        <label htmlFor="apiBase" className="block text-sm font-medium mb-1">
+        <label htmlFor="apiBase" className="block text-sm font-medium mb-1 text-foreground">
           URL de l'API
         </label>
         <input
           id="apiBase"
           value={settings.api_base}
           onChange={(e) => update('api_base', e.target.value)}
-          className="w-full border rounded px-3 py-2 mb-4"
+          className={inputClass}
         />
 
-        <label htmlFor="model" className="block text-sm font-medium mb-1">
+        <label htmlFor="model" className="block text-sm font-medium mb-1 text-foreground">
           Modèle
         </label>
         <input
           id="model"
           value={settings.model}
           onChange={(e) => update('model', e.target.value)}
-          className="w-full border rounded px-3 py-2 mb-4"
+          className={inputClass}
         />
 
-        <label htmlFor="ocrEngine" className="block text-sm font-medium mb-1">
+        <label htmlFor="ocrEngine" className="block text-sm font-medium mb-1 text-foreground">
           Moteur OCR
         </label>
         <select
           id="ocrEngine"
           value={settings.ocr_engine}
           onChange={(e) => update('ocr_engine', e.target.value)}
-          className="w-full border rounded px-3 py-2 mb-4"
+          className={inputClass}
         >
           <option value="auto">auto</option>
           <option value="tesseract">tesseract</option>
           <option value="easyocr">easyocr</option>
         </select>
 
-        {status && <p className="text-green-700 mb-2">{status}</p>}
-        <button onClick={handleSave} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">
+        {status && (
+          <p className="flex items-center gap-1.5 text-success mb-2 text-sm font-medium">
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            {status}
+          </p>
+        )}
+        <button
+          onClick={handleSave}
+          className="bg-primary text-on-primary px-4 py-2.5 rounded-lg font-semibold transition-colors duration-200 hover:bg-primary-dark cursor-pointer"
+        >
           Enregistrer
         </button>
       </div>

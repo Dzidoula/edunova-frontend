@@ -1,14 +1,24 @@
 import { useEffect, useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
+import {
+  FileText,
+  Bot,
+  HelpCircle,
+  ClipboardList,
+  PencilLine,
+  ScanSearch,
+  Frown,
+} from 'lucide-react'
+import type { LucideIcon } from 'lucide-react'
 import { getDocument, updateDocumentText, rerunOcr } from '../api/documents'
 import type { Document } from '../api/documents'
 import { ErrorBanner } from '../components/ErrorBanner'
 
-const OPTIONS: { icon: string; label: string; prompt: string }[] = [
-  { icon: '😕', label: 'Je ne comprends pas tout', prompt: 'Je ne comprends pas tout le document, aide-moi à le découper.' },
-  { icon: '📋', label: 'Résume le document', prompt: 'Fais-moi un résumé clair et structuré de ce document.' },
-  { icon: '📝', label: 'Aide sur un exercice', prompt: 'Aide-moi sur un exercice de ce document, guide-moi étape par étape.' },
-  { icon: '❓', label: 'Pose-moi des questions', prompt: 'Pose-moi 3 questions pour vérifier ma compréhension.' },
+const OPTIONS: { icon: LucideIcon; label: string; prompt: string }[] = [
+  { icon: Frown, label: 'Je ne comprends pas tout', prompt: 'Je ne comprends pas tout le document, aide-moi à le découper.' },
+  { icon: ClipboardList, label: 'Résume le document', prompt: 'Fais-moi un résumé clair et structuré de ce document.' },
+  { icon: PencilLine, label: 'Aide sur un exercice', prompt: 'Aide-moi sur un exercice de ce document, guide-moi étape par étape.' },
+  { icon: HelpCircle, label: 'Pose-moi des questions', prompt: 'Pose-moi 3 questions pour vérifier ma compréhension.' },
 ]
 
 export function DocumentHubPage() {
@@ -63,40 +73,41 @@ export function DocumentHubPage() {
   }
 
   if (!doc && error) return <ErrorBanner message={error} onDismiss={() => setError(null)} />
-  if (!doc) return <p>Chargement…</p>
+  if (!doc) return <p className="text-muted-foreground">Chargement…</p>
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-1">
-        <span aria-hidden="true">📄</span> <span>{doc.title}</span>
+      <h1 className="flex items-center gap-2 text-2xl font-bold mb-1 text-foreground">
+        <FileText className="h-6 w-6 text-primary" aria-hidden="true" />
+        <span>{doc.title}</span>
       </h1>
-      <p className="text-sm text-slate-500 mb-4">
+      <p className="text-sm text-muted-foreground mb-4">
         {doc.subject} · {doc.document_type}
       </p>
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-      <div className="flex gap-4">
-        <div className="flex-1 bg-white border rounded p-4">
+      <div className="flex flex-col md:flex-row gap-4">
+        <div className="flex-1 bg-white border border-border rounded-2xl p-5">
           {isEditing ? (
             <div>
               <textarea
                 aria-label="Texte du document"
                 value={editedText}
                 onChange={(e) => setEditedText(e.target.value)}
-                className="w-full border rounded px-3 py-2 mb-2 whitespace-pre-wrap"
+                className="w-full border border-border rounded-lg px-3 py-2 mb-2 whitespace-pre-wrap transition-colors duration-200 focus:border-primary"
                 rows={12}
               />
               <div className="flex gap-2">
                 <button
                   onClick={handleSaveText}
                   disabled={isSavingText}
-                  className="bg-blue-600 text-white px-4 py-2 rounded font-semibold disabled:opacity-50"
+                  className="bg-primary text-on-primary px-4 py-2 rounded-lg font-semibold transition-colors duration-200 hover:bg-primary-dark disabled:opacity-50 cursor-pointer"
                 >
                   {isSavingText ? 'Enregistrement…' : 'Enregistrer le texte'}
                 </button>
                 <button
                   onClick={() => setIsEditing(false)}
                   disabled={isSavingText}
-                  className="bg-white border rounded px-4 py-2"
+                  className="bg-white border border-border rounded-lg px-4 py-2 transition-colors duration-200 hover:bg-muted cursor-pointer"
                 >
                   Annuler
                 </button>
@@ -104,39 +115,45 @@ export function DocumentHubPage() {
             </div>
           ) : (
             <>
-              <div className="whitespace-pre-wrap mb-3">
+              <div className="whitespace-pre-wrap mb-3 text-foreground">
                 {doc.has_content ? doc.extracted_text : "Aucun texte extractible pour l'instant."}
               </div>
               <div className="flex gap-2">
-                <button onClick={startEditing} className="bg-white border rounded px-4 py-2 hover:bg-slate-50">
-                  <span aria-hidden="true">✏️</span> <span>Modifier le texte</span>
+                <button
+                  onClick={startEditing}
+                  className="flex items-center gap-1.5 bg-white border border-border rounded-lg px-4 py-2 text-sm transition-colors duration-200 hover:bg-muted cursor-pointer"
+                >
+                  <PencilLine className="h-4 w-4" aria-hidden="true" />
+                  <span>Modifier le texte</span>
                 </button>
                 <button
                   onClick={handleRerunOcr}
                   disabled={isRerunningOcr}
-                  className="bg-white border rounded px-4 py-2 hover:bg-slate-50 disabled:opacity-50"
+                  className="flex items-center gap-1.5 bg-white border border-border rounded-lg px-4 py-2 text-sm transition-colors duration-200 hover:bg-muted disabled:opacity-50 cursor-pointer"
                 >
-                  <span aria-hidden="true">🔎</span>{' '}
+                  <ScanSearch className="h-4 w-4" aria-hidden="true" />
                   <span>{isRerunningOcr ? "Relance de l'OCR…" : "Relancer l'OCR"}</span>
                 </button>
               </div>
             </>
           )}
         </div>
-        <div className="w-72 flex flex-col gap-2">
+        <div className="md:w-72 flex flex-col gap-2">
           <Link
             to={`/chat?document_id=${doc.id}`}
-            className="bg-blue-600 text-white text-center px-4 py-2 rounded font-semibold"
+            className="flex items-center justify-center gap-2 bg-primary text-on-primary text-center px-4 py-2.5 rounded-lg font-semibold transition-colors duration-200 hover:bg-primary-dark"
           >
-            <span aria-hidden="true">🤖</span> <span>Étudier avec l'IA</span>
+            <Bot className="h-4 w-4" aria-hidden="true" />
+            <span>Étudier avec l'IA</span>
           </Link>
           {OPTIONS.map((opt) => (
             <Link
               key={opt.label}
               to={`/chat?document_id=${doc.id}&prompt=${encodeURIComponent(opt.prompt)}`}
-              className="bg-white border rounded px-4 py-2 hover:bg-slate-50"
+              className="flex items-center gap-2 bg-white border border-border rounded-lg px-4 py-2 text-sm transition-colors duration-200 hover:border-primary hover:bg-muted"
             >
-              <span aria-hidden="true">{opt.icon}</span> <span>{opt.label}</span>
+              <opt.icon className="h-4 w-4 text-primary shrink-0" aria-hidden="true" />
+              <span>{opt.label}</span>
             </Link>
           ))}
         </div>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
+import { Bot, User, Mic, Square, Globe, Send } from 'lucide-react'
 import { sendChatMessage, getChatHistory, translateText } from '../api/chat'
 import type { ChatMessage } from '../api/chat'
 import { useSpeech } from '../hooks/useSpeech'
@@ -67,15 +68,33 @@ export function ChatPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-bold mb-4">🤖 Demander à l'IA</h1>
+      <h1 className="flex items-center gap-2 text-2xl font-bold mb-4 text-foreground">
+        <Bot className="h-6 w-6 text-primary" aria-hidden="true" />
+        Demander à l'IA
+      </h1>
       {error && <ErrorBanner message={error} onDismiss={() => setError(null)} />}
-      <div className="bg-white border rounded p-4 mb-4 h-96 overflow-y-auto">
-        {messages.map((m, i) => (
-          <p key={i} className={m.role === 'tutor' ? 'text-blue-700 mb-2' : 'text-slate-800 mb-2'}>
-            <strong>{m.role === 'tutor' ? '🤖 Tuteur : ' : '👤 Toi : '}</strong>
-            {m.content}
-          </p>
-        ))}
+      <div className="bg-white border border-border rounded-2xl p-4 mb-4 h-96 overflow-y-auto flex flex-col gap-3">
+        {messages.map((m, i) => {
+          const isTutor = m.role === 'tutor'
+          return (
+            <div key={i} className={`flex items-start gap-2 ${isTutor ? '' : 'flex-row-reverse'}`}>
+              <div
+                className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${
+                  isTutor ? 'bg-primary text-on-primary' : 'bg-muted text-muted-foreground'
+                }`}
+              >
+                {isTutor ? <Bot className="h-4 w-4" aria-hidden="true" /> : <User className="h-4 w-4" aria-hidden="true" />}
+              </div>
+              <div
+                className={`max-w-[75%] rounded-2xl px-4 py-2 text-sm ${
+                  isTutor ? 'bg-muted text-foreground rounded-tl-none' : 'bg-primary text-on-primary rounded-tr-none'
+                }`}
+              >
+                {m.content}
+              </div>
+            </div>
+          )
+        })}
       </div>
       <div className="flex gap-2">
         <input
@@ -83,22 +102,38 @@ export function ChatPage() {
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
           placeholder="Pose ta question…"
-          className="flex-1 border rounded px-3 py-2"
+          className="flex-1 border border-border rounded-lg px-3 py-2 transition-colors duration-200 focus:border-primary"
         />
         {sttAvailable && (
-          <button onClick={handleVoiceInput} className="bg-slate-100 px-3 py-2 rounded" aria-label="Micro">
-            🎤
+          <button
+            onClick={handleVoiceInput}
+            className="bg-muted text-foreground px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-border cursor-pointer"
+            aria-label="Micro"
+          >
+            <Mic className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
         {ttsAvailable && (
-          <button onClick={stop} className="bg-red-50 text-red-700 px-3 py-2 rounded" aria-label="Stop">
-            ⏹
+          <button
+            onClick={stop}
+            className="bg-red-50 text-destructive px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-red-100 cursor-pointer"
+            aria-label="Stop"
+          >
+            <Square className="h-4 w-4" aria-hidden="true" />
           </button>
         )}
-        <button onClick={handleTranslate} className="bg-slate-100 px-3 py-2 rounded">
-          🌐 Traduire
+        <button
+          onClick={handleTranslate}
+          className="flex items-center gap-1.5 bg-muted text-foreground px-3 py-2 rounded-lg transition-colors duration-200 hover:bg-border cursor-pointer"
+        >
+          <Globe className="h-4 w-4" aria-hidden="true" />
+          Traduire
         </button>
-        <button onClick={handleSend} className="bg-blue-600 text-white px-4 py-2 rounded font-semibold">
+        <button
+          onClick={handleSend}
+          className="flex items-center gap-1.5 bg-primary text-on-primary px-4 py-2 rounded-lg font-semibold transition-colors duration-200 hover:bg-primary-dark cursor-pointer"
+        >
+          <Send className="h-4 w-4" aria-hidden="true" />
           Envoyer
         </button>
       </div>
