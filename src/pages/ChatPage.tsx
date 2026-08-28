@@ -1,10 +1,25 @@
 import { useEffect, useRef, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Bot, User, Mic, Square, Globe, Send } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
+import type { Components } from 'react-markdown'
 import { sendChatMessage, getChatHistory, translateText } from '../api/chat'
 import type { ChatMessage } from '../api/chat'
 import { useSpeech } from '../hooks/useSpeech'
 import { ErrorBanner } from '../components/ErrorBanner'
+
+const MARKDOWN_COMPONENTS: Components = {
+  p: ({ children }) => <p className="mb-2 last:mb-0">{children}</p>,
+  ul: ({ children }) => <ul className="list-disc pl-4 mb-2 space-y-0.5">{children}</ul>,
+  ol: ({ children }) => <ol className="list-decimal pl-4 mb-2 space-y-0.5">{children}</ol>,
+  strong: ({ children }) => <strong className="font-semibold">{children}</strong>,
+  code: ({ children }) => <code className="bg-black/5 rounded px-1 py-0.5 text-xs">{children}</code>,
+  a: ({ children, href }) => (
+    <a href={href} target="_blank" rel="noreferrer" className="underline">
+      {children}
+    </a>
+  ),
+}
 
 export function ChatPage() {
   const [searchParams] = useSearchParams()
@@ -90,7 +105,11 @@ export function ChatPage() {
                   isTutor ? 'bg-muted text-foreground rounded-tl-none' : 'bg-primary text-on-primary rounded-tr-none'
                 }`}
               >
-                {m.content}
+                {isTutor ? (
+                  <ReactMarkdown components={MARKDOWN_COMPONENTS}>{m.content}</ReactMarkdown>
+                ) : (
+                  m.content
+                )}
               </div>
             </div>
           )
