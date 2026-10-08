@@ -22,7 +22,7 @@ const MARKDOWN_COMPONENTS: Components = {
 }
 
 export function ChatPage() {
-  const [searchParams] = useSearchParams()
+  const [searchParams, setSearchParams] = useSearchParams()
   const documentId = searchParams.get('document_id') || undefined
   const presetPrompt = searchParams.get('prompt') || undefined
 
@@ -33,16 +33,37 @@ export function ChatPage() {
   const autoSent = useRef(false)
 
   useEffect(() => {
-    getChatHistory(documentId).then(setMessages).catch(() => setMessages([]))
-  }, [documentId])
-
-  useEffect(() => {
-    if (presetPrompt && !autoSent.current) {
-      autoSent.current = true
-      void send(presetPrompt)
+    // Load the history first, then auto-send the preset prompt, so the history response
+    // can never overwrite the optimistic message. `cancelled` drops stale responses when
+    // the document changes (or on StrictMode's double mount).
+    let cancelled = false
+    setMessages([])
+    getChatHistory(documentId)
+      .then((history) => {
+        if (!cancelled) setMessages(history)
+      })
+      .catch(() => {
+        if (!cancelled) setMessages([])
+      })
+      .finally(() => {
+        if (cancelled || !presetPrompt || autoSent.current) return
+        autoSent.current = true
+        // Drop ?prompt= so a page refresh doesn't re-send it.
+        setSearchParams(
+          (prev) => {
+            const next = new URLSearchParams(prev)
+            next.delete('prompt')
+            return next
+          },
+          { replace: true }
+        )
+        void send(presetPrompt)
+      })
+    return () => {
+      cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [presetPrompt])
+  }, [documentId])
 
   async function send(message: string) {
     setError(null)

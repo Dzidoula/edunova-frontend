@@ -22,9 +22,10 @@ describe('LoginPage', () => {
     )
 
     await userEvent.type(screen.getByLabelText(/pseudo/i), 'amina')
+    await userEvent.type(screen.getByLabelText(/mot de passe/i), 'secret123')
     await userEvent.click(screen.getByRole('button', { name: /entrer/i }))
 
-    await waitFor(() => expect(loginMock).toHaveBeenCalledWith('amina'))
+    await waitFor(() => expect(loginMock).toHaveBeenCalledWith('amina', 'secret123'))
   })
 
   it('shows an error banner when login fails', async () => {
@@ -43,6 +44,7 @@ describe('LoginPage', () => {
     )
 
     await userEvent.type(screen.getByLabelText(/pseudo/i), 'x')
+    await userEvent.type(screen.getByLabelText(/mot de passe/i), 'secret123')
     await userEvent.click(screen.getByRole('button', { name: /entrer/i }))
 
     await waitFor(() =>

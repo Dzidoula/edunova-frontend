@@ -30,6 +30,7 @@ describe('App integration', () => {
     render(<App />)
 
     await userEvent.type(screen.getByLabelText(/pseudo/i), 'amina')
+    await userEvent.type(screen.getByLabelText(/mot de passe/i), 'secret123')
     await userEvent.click(screen.getByRole('button', { name: /entrer/i }))
 
     await waitFor(() => expect(screen.getByText(/Bonjour amina/)).toBeInTheDocument())

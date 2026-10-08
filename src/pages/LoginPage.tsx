@@ -9,13 +9,14 @@ export function LoginPage() {
   const { login } = useAuth()
   const navigate = useNavigate()
   const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault()
     setError(null)
     try {
-      await login(username)
+      await login(username, password)
       navigate('/')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Connexion impossible.')
@@ -39,6 +40,18 @@ export function LoginPage() {
           onChange={(e) => setUsername(e.target.value)}
           className="w-full border border-border rounded-lg px-3 py-2.5 mb-4 transition-colors duration-200 focus:border-primary"
           placeholder="ex: koffi"
+        />
+        <label htmlFor="password" className="block text-sm font-medium mb-1 text-foreground">
+          Mot de passe
+        </label>
+        <input
+          id="password"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          className="w-full border border-border rounded-lg px-3 py-2.5 mb-4 transition-colors duration-200 focus:border-primary"
+          placeholder="6 caractères minimum"
         />
         <button
           type="submit"

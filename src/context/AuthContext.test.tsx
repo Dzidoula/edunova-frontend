@@ -9,7 +9,7 @@ function Probe() {
   return (
     <div>
       <span data-testid="username">{user?.username ?? 'anonymous'}</span>
-      <button onClick={() => login('koffi')}>login</button>
+      <button onClick={() => login('koffi', 'secret123')}>login</button>
       <button onClick={logout}>logout</button>
     </div>
   )

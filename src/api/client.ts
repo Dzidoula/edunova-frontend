@@ -1,6 +1,20 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 const TOKEN_KEY = 'edunova_token'
 
+export const UNAUTHORIZED_EVENT = 'edunova:unauthorized'
+
+function formatDetail(detail: unknown, fallback: string): string {
+  if (typeof detail === 'string') return detail
+  if (Array.isArray(detail)) {
+    // FastAPI 422: [{ msg: "Value error, ...", loc: [...] }, ...]
+    const messages = detail
+      .map((d) => (typeof d?.msg === 'string' ? d.msg.replace(/^Value error, /, '') : null))
+      .filter((m): m is string => !!m)
+    if (messages.length) return messages.join(' ')
+  }
+  return fallback
+}
+
 export class ApiError extends Error {
   status: number
   constructor(status: number, message: string) {
@@ -36,14 +50,15 @@ export async function apiFetch<T>(path: string, options: RequestInit = {}): Prom
     let message = response.statusText
     try {
       const body = await response.json()
-      if (body?.detail) message = body.detail
+      if (body?.detail) message = formatDetail(body.detail, message)
     } catch {
       // no JSON body — keep statusText
     }
-    if (response.status === 401) {
-      // The stored token is expired/invalid: drop it so ProtectedRoute redirects to /login
-      // on next render instead of leaving the user stuck on a broken authenticated page.
+    if (response.status === 401 && path !== '/auth/login') {
+      // The stored token is expired/invalid: drop it and tell AuthContext so its state resets
+      // and ProtectedRoute redirects to /login instead of leaving a broken authenticated page.
       setToken(null)
+      window.dispatchEvent(new Event(UNAUTHORIZED_EVENT))
     }
     throw new ApiError(response.status, message)
   }

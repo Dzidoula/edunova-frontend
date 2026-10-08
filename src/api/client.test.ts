@@ -85,4 +85,30 @@ describe('ApiError', () => {
     expect(err.status).toBe(404)
     expect(err.message).toBe('Document introuvable.')
   })
+
+  it('formats FastAPI 422 validation arrays into a readable message', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    ;(fetch as any).mockResolvedValue({
+      ok: false,
+      status: 422,
+      statusText: 'Unprocessable',
+      json: async () => ({ detail: [{ msg: 'Value error, Le pseudo ne peut pas être vide.', loc: ['body'] }] }),
+    })
+
+    await expect(apiFetch('/auth/login')).rejects.toThrow('Le pseudo ne peut pas être vide.')
+  })
+
+  it('emits the unauthorized event on 401 outside the login route', async () => {
+    vi.stubGlobal('fetch', vi.fn())
+    const listener = vi.fn()
+    window.addEventListener('edunova:unauthorized', listener)
+    setToken('stale')
+    ;(fetch as any).mockResolvedValue({ ok: false, status: 401, statusText: 'x', json: async () => ({ detail: 'Token invalide.' }) })
+
+    await expect(apiFetch('/documents')).rejects.toBeInstanceOf(ApiError)
+
+    expect(getToken()).toBeNull()
+    expect(listener).toHaveBeenCalledTimes(1)
+    window.removeEventListener('edunova:unauthorized', listener)
+  })
 })
